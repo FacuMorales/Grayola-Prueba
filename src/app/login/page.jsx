@@ -10,7 +10,6 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    remember: false,
   });
 
   const [errors, setErrors] = useState({
@@ -23,6 +22,8 @@ export default function Login() {
   const [isLogin, setIsLogin] = useState(true); // true = login, false = register
 
   const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar la contraseña
+
+  const [isLoading, setIsLoading] = useState(false); // Para mostrar cargando en login/register
 
   const router = useRouter();
 
@@ -39,9 +40,10 @@ export default function Login() {
     e.preventDefault();
     if (!validateForm()) return;
   
-    setLoginError(''); // Limpiar errores previos
+    setLoginError('');
+    setIsLoading(true);
   
-    const { email, password } = formData;
+    const { email, password} = formData;
   
     if (isLogin) {
       // LOGIN
@@ -52,23 +54,47 @@ export default function Login() {
   
       if (error) {
         setLoginError('Email o contraseña incorrectos.');
+        console.log(error.message);
       } else {
         router.push('/dashboard/cliente');
       }
   
     } else {
       // REGISTER
-      const { error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
       });
   
-      if (error) {
-        setLoginError(error.message);
-      } else {
-        router.push('/dashboard/cliente');
+      if (signUpError) {
+        setLoginError(signUpError.message);
+        setIsLoading(false);
+        return;
+      }
+  
+      const userId = data?.user?.id;
+  
+      if (userId) {
+        const { error: insertError } = await supabase.from('users').insert([
+          {
+            id: userId,
+            email,
+            role: "cliente",
+          },
+        ]);
+  
+        if (insertError) {
+          setLoginError('Error al registrar el usuario en la base de datos.');
+          console.log(insertError.message);
+          setIsLoading(false);
+          return;
+        }
+  
+        router.push('/login/confirm');
       }
     }
+
+    setIsLoading(false);
   };
 
   const handleIrALanding = () => {
@@ -178,9 +204,9 @@ export default function Login() {
                   ? 'bg-[#9AFF1A] opacity-50 text-gray-500 cursor-not-allowed'
                   : 'bg-[#9AFF1A] text-black shadow-black shadow-lg hover:bg-[#D06CFF] cursor-pointer'}
               `}
-              disabled={ !formData.email || !formData.password }
+              disabled={ !formData.email || !formData.password || isLoading}
             >
-              {isLogin ? "Iniciar Sesión" : "Registrarse"}
+              {isLoading ? 'Cargando...' : (isLogin ? "Iniciar Sesión" : "Registrarse")}
             </button>
             
             <p className="mt-4 text-sm text-center text-gray-600">
