@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react'
-import { supabase } from '@/services/supabaseClient'
+import { supabase } from '@/app/services/supabaseClient'
 import './globals.css'
 
 export default function Home() {

@@ -1,12 +1,10 @@
-export const metadata = {
-  title: 'Grayola App',
-  description: 'Gestión de proyectos de diseño',
-}
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+      </body>
     </html>
   )
 }

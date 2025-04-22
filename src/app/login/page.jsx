@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/services/supabaseClient'
+import { supabase } from '@/app/services/supabaseClient'
 import { Eye, EyeOff, Lock, User } from 'lucide-react';
 import "@/app/globals.css"
 
@@ -56,7 +56,7 @@ export default function Login() {
         setLoginError('Email o contraseña incorrectos.');
         console.log(error.message);
       } else {
-        router.push('/dashboard/cliente');
+        router.push('/dashboard');
       }
   
     } else {

@@ -1,9 +1,22 @@
-import "@/app/globals.css"
+import { redirect } from 'next/navigation'
+import { createSupabaseServerClient } from '@/app/services/supabaseServer'
+import { validateUserRole } from '@/helpers/validateUserRole'
+import PmContent from './pmContent'
 
-export default function ProjectManager() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-purple-100">
-      <h1 className="text-4xl text-red-500 font-bold bg-yellow-300">ProjectManager</h1>
-    </div>
-  );
+export default async function ProjectManager() {
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const valid = await validateUserRole(supabase, user.id, 'pm')
+  if (!valid) {
+    redirect('/dashboard')
+  }
+
+  return <PmContent email={user.email} />
 }
