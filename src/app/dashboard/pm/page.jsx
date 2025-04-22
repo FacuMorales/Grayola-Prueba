@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/app/services/supabaseServer'
 import { validateUserRole } from '@/helpers/validateUserRole'
 import PmContent from './pmContent'
+import Header from '@/app/components/Header'
 
 export default async function ProjectManager() {
   const supabase = await createSupabaseServerClient()
@@ -18,5 +19,10 @@ export default async function ProjectManager() {
     redirect('/dashboard')
   }
 
-  return <PmContent email={user.email} />
+  return(
+    <section>
+      <Header/>
+      <PmContent email={user.email} />
+    </section>
+  )
 }

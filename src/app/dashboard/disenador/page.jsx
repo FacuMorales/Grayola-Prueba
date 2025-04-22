@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/app/services/supabaseServer'
 import { validateUserRole } from '@/helpers/validateUserRole'
 import DiseñadorContent from './disenadorContent'
+import Header from '@/app/components/Header'
 
 export default async function Diseñador() {
   const supabase = await createSupabaseServerClient()
@@ -18,5 +19,10 @@ export default async function Diseñador() {
     redirect('/dashboard')
   }
 
-  return <DiseñadorContent email={user.email} />
+  return(
+    <section>
+      <Header/>
+      <DiseñadorContent email={user.email} />
+    </section>
+  )
 }

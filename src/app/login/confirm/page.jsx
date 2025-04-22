@@ -1,13 +1,33 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'
-import "@/app/globals.css";
+import { supabase } from '@/app/services/supabaseClient'
+import { getUserRole } from '@/helpers/validateUserRole';
+import "@/app/globals.css"
 
 export default function Confirm() {
-    const router = useRouter();
-    const handleIrALanding = () => {
-        router.push('/');
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+  
+      if (session) {
+        const role = await getUserRole(supabase, session.user.id);
+        if (role) {
+          router.push(`/dashboard/${role}`);
+        }
+      }
     };
+  
+    checkSession();
+  }, []);  
+
+  const handleIrALanding = () => {
+    router.push('/');
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-yellow-100 via-cyan-200 to-white">
