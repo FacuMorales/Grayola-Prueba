@@ -1,11 +1,9 @@
 'use client'
-import { useEffect } from 'react'
-import { supabase } from '@/app/services/supabaseClient'
 import './globals.css'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-cyan-200 to-white text-black">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 via-cyan-200 to-gray-200 text-black">
       <header className="flex justify-between items-center p-6">
         <img
           src={

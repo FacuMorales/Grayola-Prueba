@@ -120,7 +120,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-xl">
-        <div className="hidden w-5/12 bg-gradient-to-br from-yellow-100 via-cyan-200 to-white lg:block "></div>
+        <div className="hidden w-5/12 bg-gradient-to-br from-yellow-100 via-cyan-200 to-gray-50 lg:block "></div>
         <div className="w-full p-16 px-12 lg:px-[75px] lg:w-7/12">
           <div className="flex justify-center">
             <img

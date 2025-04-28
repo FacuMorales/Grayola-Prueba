@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/app/services/supabaseServer'
 import { validateUserRole } from '@/helpers/validateUserRole'
+import { getProjectsByRole } from '@/helpers/getProjectsByRole'
 import ClienteContent from './clienteContent'
-import Header from '@/app/components/Header'
 
 export default async function Cliente() {
   const supabase = await createSupabaseServerClient()
@@ -19,10 +19,9 @@ export default async function Cliente() {
     redirect('/dashboard')
   }
 
+  const projects = await getProjectsByRole(supabase, user.id, 'cliente')
+
   return(
-    <section>
-      <Header/>
-      <ClienteContent email={user.email} />
-    </section>
+    <ClienteContent email={user.email} id={user.id} projects={projects} />
   )
 }

@@ -30,7 +30,7 @@ export default function Confirm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-yellow-100 via-cyan-200 to-white">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-yellow-100 via-cyan-200 to-gray-200">
       <div className="text-center p-10 bg-white rounded-3xl shadow-xl max-w-md">
         <img
           onClick={handleIrALanding}

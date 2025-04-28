@@ -16,7 +16,7 @@ export default function Header() {
   };
 
   return (
-    <header className="flex justify-between items-center p-4 bg-white shadow-md">
+    <header className="flex justify-between items-center pt-6 pb-6 pr-24 pl-6 bg-gray-50 shadow-md">
       <div className="flex items-center">
         <img
             onClick={handleIrALanding}
@@ -28,7 +28,7 @@ export default function Header() {
       </div>
       <button
         onClick={handleLogout}
-        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition cursor-pointer"
       >
         Cerrar sesión
       </button>
