@@ -63,7 +63,7 @@ export default function Login() {
   
     if (isLogin) {
       // LOGIN
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data: loginData } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -72,6 +72,21 @@ export default function Login() {
         setLoginError('Email o contraseña incorrectos.');
         console.log(error.message);
       } else {
+        const { data: existingUser, error: fetchError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', loginData.user.id)
+          .single();
+
+        if (!existingUser) {
+          await supabase.from('users').insert([
+            {
+              id: loginData.user.id,
+              email: loginData.user.email,
+              role: "cliente",
+            },
+          ]);
+        }
         router.push('/dashboard');
       }
   
@@ -88,26 +103,7 @@ export default function Login() {
         return;
       }
   
-      const userId = data?.user?.id;
-  
-      if (userId) {
-        const { error: insertError } = await supabase.from('users').insert([
-          {
-            id: userId,
-            email,
-            role: "cliente",
-          },
-        ]);
-  
-        if (insertError) {
-          setLoginError('Error al registrar el usuario en la base de datos.');
-          console.log(insertError.message);
-          setIsLoading(false);
-          return;
-        }
-  
-        router.push('/login/confirm');
-      }
+      router.push('/login/confirm');
     }
 
     setIsLoading(false);

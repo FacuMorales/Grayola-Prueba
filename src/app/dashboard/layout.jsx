@@ -5,9 +5,9 @@ export const metadata = { title: 'Dashboard | Grayola' }
 
 export default function DashboardLayout({ children }) {
   return (
-    <section className="flex flex-col min-h-screen">
+    <section className="flex flex-col h-screen">
       <Header />
-      <div className="flex-1 bg-gradient-to-br from-yellow-100 via-cyan-200 to-gray-200">
+      <div className="flex-1 overflow-hidden">
         {children}
       </div>
     </section>
