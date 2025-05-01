@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/app/services/supabaseServer'
 import { validateUserRole } from '@/helpers/validateUserRole'
+import { getProjectsByRole } from '@/helpers/getProjectsByRole'
+import { getDesigners } from '@/helpers/getDesigners'
 import PmContent from './pmContent'
 
 export default async function ProjectManager() {
@@ -18,9 +20,11 @@ export default async function ProjectManager() {
     redirect('/dashboard')
   }
 
+  const projects = await getProjectsByRole(supabase, user.id, 'pm')
+
+  const designers = await getDesigners(supabase)
+
   return(
-    <section>
-      <PmContent email={user.email} />
-    </section>
+    <PmContent email={user.email} projects={projects} id={user.id} designers={designers} />
   )
 }

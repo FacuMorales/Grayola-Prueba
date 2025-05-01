@@ -67,7 +67,7 @@ export default function Login() {
         email,
         password,
       });
-  
+      
       if (error) {
         setLoginError('Email o contraseña incorrectos.');
         console.log(error.message);
@@ -77,8 +77,9 @@ export default function Login() {
           .select('*')
           .eq('id', loginData.user.id)
           .single();
-
+          
         if (!existingUser) {
+          console.log(fetchError);
           await supabase.from('users').insert([
             {
               id: loginData.user.id,

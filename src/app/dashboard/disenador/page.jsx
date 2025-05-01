@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/app/services/supabaseServer'
 import { validateUserRole } from '@/helpers/validateUserRole'
+import { getProjectsByRole } from '@/helpers/getProjectsByRole'
+import { getDesigners } from '@/helpers/getDesigners'
 import DiseñadorContent from './disenadorContent'
-import Header from '@/app/components/Header'
 
 export default async function Diseñador() {
   const supabase = await createSupabaseServerClient()
@@ -19,10 +20,11 @@ export default async function Diseñador() {
     redirect('/dashboard')
   }
 
+  const projects = await getProjectsByRole(supabase, user.id, 'diseñador')
+
+  const designers = await getDesigners(supabase)
+
   return(
-    <section>
-      <Header/>
-      <DiseñadorContent email={user.email} />
-    </section>
+    <DiseñadorContent email={user.email} projects={projects} designers={designers} />
   )
 }

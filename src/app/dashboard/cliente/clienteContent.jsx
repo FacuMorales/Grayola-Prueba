@@ -10,7 +10,7 @@ import {
   ChevronLeft,
 } from 'lucide-react'
 
-export default function ClienteContent({ email, id, projects }) {
+export default function ClienteContent({ email, id, projects, designers }) {
   const [section, setSection] = useState('home')
   const [collapsed, setCollapsed] = useState(false)
 
@@ -81,7 +81,7 @@ export default function ClienteContent({ email, id, projects }) {
 
         {section === 'projects' && (
           <div className="max-w-4xl mx-auto">
-            <ProjectTable projects={projects} editable />
+            <ProjectTable projects={projects} editable designers={designers} />
           </div>
         )}
       </main>

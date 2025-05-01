@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/app/services/supabaseServer'
 import { validateUserRole } from '@/helpers/validateUserRole'
 import { getProjectsByRole } from '@/helpers/getProjectsByRole'
+import { getDesigners } from '@/helpers/getDesigners'
 import ClienteContent from './clienteContent'
 
 export default async function Cliente() {
@@ -21,7 +22,9 @@ export default async function Cliente() {
 
   const projects = await getProjectsByRole(supabase, user.id, 'cliente')
 
+  const designers = await getDesigners(supabase)
+
   return(
-    <ClienteContent email={user.email} id={user.id} projects={projects} />
+    <ClienteContent email={user.email} id={user.id} projects={projects} designers={designers} />
   )
 }

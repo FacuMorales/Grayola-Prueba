@@ -1,71 +1,124 @@
 'use client'
 import { useState } from 'react'
+import { Dialog } from '@headlessui/react'
 import { supabase } from '../services/supabaseClient'
 
-export default function ProjectTable({ projects, editable, assignable, designers }) {
-  const [rows, setRows] = useState(projects)
+export default function ProjectTable({ projects, editable, assignable, designers = [] }) {
+  const [cards, setCards] = useState(projects)
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [selectedDesigners, setSelectedDesigners] = useState([])
 
-  /* --- acciones directas con el SDK --- */
   const deleteProject = async (id) => {
     await supabase.from('projects').delete().eq('id', id)
-    setRows(rows.filter(p => p.id !== id))
+    setCards(cards.filter(p => p.id !== id))
   }
 
-  const assignDesigner = async (id, designerId) => {
-    await supabase.from('projects').update({ assigned_to: designerId }).eq('id', id)
-    setRows(rows.map(p => p.id === id ? { ...p, assigned_to: designerId } : p))
+  const openAssignModal = (project) => {
+    setSelectedProject(project)
+    setSelectedDesigners(project.assigned_to ?? [])
+    setIsOpen(true)
+  }
+
+  const toggleDesigner = (id) => {
+    setSelectedDesigners(prev =>
+      prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]
+    )
+  }
+
+  const saveAssignment = async () => {
+    await supabase.from('projects').update({ assigned_to: selectedDesigners }).eq('id', selectedProject.id)
+    setCards(cards.map(p => p.id === selectedProject.id ? { ...p, assigned_to: selectedDesigners } : p))
+    setIsOpen(false)
+  }
+
+  const getDesignerNames = (ids = []) => {
+    const names = designers
+      .filter(d => ids.includes(d.id))
+      .map(d => d.name ?? d.email)
+    return names.join(', ')
   }
 
   return (
-    <div className="overflow-x-auto mt-8">
-      <table className="min-w-full border">
-        <thead className="bg-gray-200 text-left">
-          <tr>
-            <th className="p-2">Título</th>
-            <th className="p-2">Descripción</th>
-            <th className="p-2">Archivos</th>
-            {assignable && <th className="p-2">Asignar</th>}
-            {editable   && <th className="p-2">Acciones</th>}
-          </tr>
-        </thead>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {cards.map(p => (
+          <div
+            key={p.id}
+            className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition flex flex-col justify-between"
+          >
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">{p.title}</h3>
+              <p className="text-gray-600 text-sm mb-3">{p.description}</p>
+              <p className="text-gray-500 text-xs mb-3">Archivos: {p.files?.length ?? 0}</p>
 
-        <tbody>
-          {rows.map(p => (
-            <tr key={p.id} className="border-t">
-              <td className="p-2">{p.title}</td>
-              <td className="p-2">{p.description}</td>
-              <td className="p-2">{p.files?.length ?? 0}</td>
+              {p.assigned_to && p.assigned_to.length > 0 && (
+                <span className="block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-2">
+                  Diseñadores: {getDesignerNames(p.assigned_to) ? getDesignerNames(p.assigned_to) : "Sin diseñadores asignados"}
+                </span>
+              )}
+            </div>
 
+            <div className="mt-4 space-y-2">
               {assignable && (
-                <td className="p-2">
-                  <select
-                    className="border rounded p-1"
-                    defaultValue={p.assigned_to ?? ''}
-                    onChange={e => assignDesigner(p.id, e.target.value)}
-                  >
-                    <option value="">—</option>
-                    {designers.map(d => (
-                      <option key={d.id} value={d.id}>{d.name ?? d.email}</option>
-                    ))}
-                  </select>
-                </td>
+                <button
+                  className="w-full bg-indigo-500 text-white rounded-md p-2 text-sm hover:bg-indigo-600 transition"
+                  onClick={() => openAssignModal(p)}
+                >
+                  Asignar diseñadores
+                </button>
               )}
 
               {editable && (
-                <td className="p-2 space-x-2">
-                  {/* Botón Borrar por simplicidad */}
-                  <button
-                    className="text-red-600"
-                    onClick={() => deleteProject(p.id)}
-                  >
-                    Borrar
-                  </button>
-                </td>
+                <button
+                  className="w-full text-red-500 border border-red-200 rounded-md p-2 text-sm hover:bg-red-50 transition"
+                  onClick={() => deleteProject(p.id)}
+                >
+                  Borrar proyecto
+                </button>
               )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal */}
+      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white rounded-xl p-6 max-w-md w-full space-y-4 shadow-xl">
+            <Dialog.Title className="text-lg font-bold text-gray-700">Asignar diseñadores</Dialog.Title>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {designers.map(d => (
+                <label key={d.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedDesigners.includes(d.id)}
+                    onChange={() => toggleDesigner(d.id)}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                  />
+                  {d.name ?? d.email}
+                </label>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveAssignment}
+                className="px-3 py-1 rounded bg-indigo-500 text-white hover:bg-indigo-600 text-sm"
+              >
+                Guardar
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+    </>
   )
 }
