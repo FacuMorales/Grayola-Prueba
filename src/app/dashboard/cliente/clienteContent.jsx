@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 export default function ClienteContent({ email, id, projects, designers }) {
+  const [projectsState, setProjectsState] = useState(projects)
   const [section, setSection] = useState('home')
   const [collapsed, setCollapsed] = useState(false)
 
@@ -75,13 +76,13 @@ export default function ClienteContent({ email, id, projects, designers }) {
 
         {section === 'new' && (
           <div className="max-w-xl mx-auto">
-            <NewProjectForm userId={id} />
+            <NewProjectForm userId={id} setProjects={setProjectsState} />
           </div>
         )}
 
         {section === 'projects' && (
           <div className="max-w-4xl mx-auto">
-            <ProjectTable projects={projects} editable designers={designers} />
+            <ProjectTable projects={projectsState} editable designers={designers} />
           </div>
         )}
       </main>

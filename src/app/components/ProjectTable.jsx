@@ -8,6 +8,10 @@ export default function ProjectTable({ projects, editable, assignable, designers
   const [isOpen, setIsOpen] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedDesigners, setSelectedDesigners] = useState([])
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+
 
   const deleteProject = async (id) => {
     await supabase.from('projects').delete().eq('id', id)
@@ -19,6 +23,13 @@ export default function ProjectTable({ projects, editable, assignable, designers
     setSelectedDesigners(project.assigned_to ?? [])
     setIsOpen(true)
   }
+
+  const openEditModal = (project) => {
+    setSelectedProject(project)
+    setEditTitle(project.title)
+    setEditDescription(project.description ?? '')
+    setIsEditOpen(true)
+  }  
 
   const toggleDesigner = (id) => {
     setSelectedDesigners(prev =>
@@ -32,7 +43,24 @@ export default function ProjectTable({ projects, editable, assignable, designers
     setIsOpen(false)
   }
 
+  const saveEdit = async () => {
+    const updates = {
+      title: editTitle,
+      description: editDescription
+    }
+  
+    await supabase.from('projects').update(updates).eq('id', selectedProject.id)
+  
+    setCards(cards.map(p =>
+      p.id === selectedProject.id ? { ...p, ...updates } : p
+    ))
+  
+    setIsEditOpen(false)
+  }
+  
+
   const getDesignerNames = (ids = []) => {
+    if (!ids) return;
     const names = designers
       .filter(d => ids.includes(d.id))
       .map(d => d.name ?? d.email)
@@ -52,9 +80,9 @@ export default function ProjectTable({ projects, editable, assignable, designers
               <p className="text-gray-600 text-sm mb-3">{p.description}</p>
               <p className="text-gray-500 text-xs mb-3">Archivos: {p.files?.length ?? 0}</p>
 
-              {p.assigned_to && p.assigned_to.length > 0 && (
+              {(
                 <span className="block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-2">
-                  Diseñadores: {getDesignerNames(p.assigned_to) ? getDesignerNames(p.assigned_to) : "Sin diseñadores asignados"}
+                  Diseñadores: {getDesignerNames(p.assigned_to) ?? "Sin diseñadores asignados"}
                 </span>
               )}
             </div>
@@ -66,6 +94,15 @@ export default function ProjectTable({ projects, editable, assignable, designers
                   onClick={() => openAssignModal(p)}
                 >
                   Asignar diseñadores
+                </button>
+              )}
+
+              {assignable && (
+                <button
+                  className="w-full bg-blue-500 text-white rounded-md p-2 text-sm hover:bg-blue-600 transition"
+                  onClick={() => openEditModal(p)}
+                >
+                  Editar proyecto
                 </button>
               )}
 
@@ -82,7 +119,7 @@ export default function ProjectTable({ projects, editable, assignable, designers
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Modal seleccionar diseñadores */}
       <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -119,6 +156,54 @@ export default function ProjectTable({ projects, editable, assignable, designers
           </Dialog.Panel>
         </div>
       </Dialog>
+
+      {/* Modal editar */}
+      <Dialog open={isEditOpen} onClose={() => setIsEditOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white rounded-xl p-6 max-w-md w-full space-y-4 shadow-xl">
+            <Dialog.Title className="text-lg font-bold text-gray-700">Editar proyecto</Dialog.Title>
+
+            <div className="space-y-2">
+              <label className="block text-sm text-gray-700 font-medium">
+                Título
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="mt-1 w-full border rounded-md p-2 text-sm"
+                />
+              </label>
+
+              <label className="block text-sm text-gray-700 font-medium">
+                Descripción
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={4}
+                  className="mt-1 w-full border rounded-md p-2 text-sm"
+                />
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <button
+                onClick={() => setIsEditOpen(false)}
+                className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveEdit}
+                className="px-3 py-1 rounded bg-indigo-500 text-white hover:bg-indigo-600 text-sm"
+              >
+                Guardar cambios
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
     </>
   )
 }

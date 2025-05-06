@@ -2,34 +2,50 @@
 import { useState } from 'react'
 import { supabase } from '@/app/services/supabaseClient'
 import { v4 as uuid } from 'uuid'
+import toast from 'react-hot-toast'
 
-export default function NewProjectForm({ userId }) {
+export default function NewProjectForm({ userId, setProjects }) {
   const [title, setTitle] = useState('')
   const [desc, setDesc] = useState('')
   const [files, setFiles] = useState([])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    // 1. subir archivos
-    const urls = []
-    for (const file of files) {
-      const path = `${userId}/${uuid()}-${file.name}`
-      const { data, error } = await supabase
-        .storage.from('project-files').upload(path, file)
-      if (error) console.error(error)
-      else urls.push(data.path)
+  
+    const toastId = toast.loading('Creando proyecto...')
+  
+    try {
+      // 1. subir archivos
+      const urls = []
+      for (const file of files) {
+        const path = `${userId}/${uuid()}-${file.name}`
+        const { data, error } = await supabase
+          .storage.from('project-files').upload(path, file)
+  
+        if (error) throw error
+        urls.push(data.path)
+      }
+  
+      // 2. insertar proyecto
+      const {data: inserted, error: insertError } = await supabase.from('projects').insert({
+        title, description: desc, files: urls, created_by: userId
+      })
+      .select()
+  
+      if (insertError) throw insertError
+  
+      setTitle('')
+      setDesc('')
+      setFiles([])
+      setProjects(prev => [...prev, inserted[0]])
+  
+      toast.success('Proyecto creado exitosamente!', { id: toastId })
+    } catch (err) {
+      console.error(err)
+      toast.error('Ocurrió un error. Intenta nuevamente.', { id: toastId })
     }
-
-    // 2. insertar proyecto
-    await supabase.from('projects').insert({
-      title, description: desc, files: urls, created_by: userId
-    })
-
-    setTitle('')
-    setDesc('')
-    setFiles([])
   }
+  
 
   return (
     <form
