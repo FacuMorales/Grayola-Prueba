@@ -76,7 +76,7 @@ export default function ClienteContent({ email, id, projects, designers }) {
 
         {section === 'new' && (
           <div className="max-w-xl mx-auto">
-            <NewProjectForm userId={id} setProjects={setProjectsState} />
+            <NewProjectForm userId={id} setProjects={setProjectsState} setSection={setSection} />
           </div>
         )}
 

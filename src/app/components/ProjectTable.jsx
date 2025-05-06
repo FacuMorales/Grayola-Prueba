@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog } from '@headlessui/react'
 import { supabase } from '../services/supabaseClient'
 
@@ -11,7 +11,27 @@ export default function ProjectTable({ projects, editable, assignable, designers
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [clientes, setClientes] = useState({})
 
+  useEffect(() => {
+    const fetchClientes = async () => {
+      const userIds = [...new Set(cards.map(p => p.created_by))]
+      const { data } = await supabase
+        .from("users")
+        .select("id, email")
+        .in("id", userIds)
+  
+      if (data) {
+        const map = {}
+        data.forEach(u => {
+          map[u.id] = u.email
+        })
+        setClientes(map)
+      }
+    }
+  
+    fetchClientes()
+  }, [cards])
 
   const deleteProject = async (id) => {
     await supabase.from('projects').delete().eq('id', id)
@@ -67,6 +87,13 @@ export default function ProjectTable({ projects, editable, assignable, designers
     return names.join(', ')
   }
 
+  const getCliente = async (id) => {
+    const {data: users, error} = await supabase.from("users").select("email").eq("id", id);
+    console.log(users);
+    
+    return users;
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
@@ -79,12 +106,12 @@ export default function ProjectTable({ projects, editable, assignable, designers
               <h3 className="text-lg font-semibold text-gray-800 mb-2">{p.title}</h3>
               <p className="text-gray-600 text-sm mb-3">{p.description}</p>
               <p className="text-gray-500 text-xs mb-3">Archivos: {p.files?.length ?? 0}</p>
-
-              {(
-                <span className="block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-2">
-                  Diseñadores: {getDesignerNames(p.assigned_to) ?? "Sin diseñadores asignados"}
-                </span>
-              )}
+              <span className="block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-2">
+                Cliente: {clientes[p.created_by] ?? 'Cargando...'}
+              </span>
+              <span className="block bg-indigo-100 text-indigo-700 text-xs font-medium px-3 py-1 rounded-full mb-2">
+                Diseñadores: {getDesignerNames(p.assigned_to) ?? "Sin diseñadores asignados"}
+              </span>
             </div>
 
             <div className="mt-4 space-y-2">

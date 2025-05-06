@@ -4,7 +4,7 @@ import { supabase } from '@/app/services/supabaseClient'
 import { v4 as uuid } from 'uuid'
 import toast from 'react-hot-toast'
 
-export default function NewProjectForm({ userId, setProjects }) {
+export default function NewProjectForm({ userId, setProjects, setSection }) {
   const [title, setTitle] = useState('')
   const [desc, setDesc] = useState('')
   const [files, setFiles] = useState([])
@@ -38,6 +38,7 @@ export default function NewProjectForm({ userId, setProjects }) {
       setDesc('')
       setFiles([])
       setProjects(prev => [...prev, inserted[0]])
+      setSection("projects")
   
       toast.success('Proyecto creado exitosamente!', { id: toastId })
     } catch (err) {

@@ -97,6 +97,12 @@ export default function Login() {
         email,
         password,
       });
+
+      if(!data.user.role){
+        setLoginError("Usuario ya registrado")
+        setIsLoading(false);
+        return
+      }
   
       if (signUpError) {
         setLoginError(signUpError.message);
