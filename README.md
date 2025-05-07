@@ -29,9 +29,11 @@ npm install
 
 ### 3. Configura las variables de entorno
 
+```bash
 Crea un archivo .env.local en la raíz del proyecto con las siguientes variables (obtenidas desde tu proyecto de Supabase):
 NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+```
 
 ### 4. Ejecuta la aplicación
 
