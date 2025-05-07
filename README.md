@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestor de Proyectos de Diseño
 
-## Getting Started
+Aplicación web para gestionar proyectos de diseño entre Clientes, Project Managers y Diseñadores.  
+Permite crear proyectos, asignar diseñadores, subir archivos y gestionar el ciclo de vida de cada proyecto.
 
-First, run the development server:
+## 🚀 Tecnologías utilizadas
+
+- [Next.js](https://nextjs.org/)
+- [Supabase](https://supabase.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Headless UI](https://headlessui.dev/)
+
+---
+
+## 🖥️ Instrucciones para ejecutar el proyecto localmente
+
+### 1. Clona el repositorio
+
+```bash
+git clone https://github.com/FacuMorales/Grayola-Prueba.git
+cd repositorio
+```
+
+### 2. Instala Dependencias
+
+```bash
+npm install
+```
+
+### 3. Configura las variables de entorno
+
+Crea un archivo .env.local en la raíz del proyecto con las siguientes variables (obtenidas desde tu proyecto de Supabase):
+NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+
+### 4. Ejecuta la aplicación
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 5. Accede a la app en http://localhost:3000
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Estructura de la base de datos (Supabase)
 
-## Learn More
+### Tabla users:
 
-To learn more about Next.js, take a look at the following resources:
+- id (UUID)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- role (enum: 'cliente', 'pm', 'diseñador')
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- email (text)
 
-## Deploy on Vercel
+### Tabla projects:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- id (UUID)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- title (text)
+
+- description (text)
+
+- files (text[])
+
+- created_by (FK: users.id)
+
+- assigned_to (uuid[])
+
+- created_at (timestamp)
+
+---
+
+## 🛠️ Breve explicación técnica
+
+La aplicación fue desarrollada con Next.js (App Router) como framework base, combinando Tailwind CSS para los estilos y Supabase como backend (base de datos, autenticación y almacenamiento de archivos).
+
+Autenticación y autorización:
+Implementadas con Supabase, utilizando roles para controlar acceso a distintas funcionalidades.
+
+Gestión de proyectos:
+Los usuarios pueden crear proyectos, asignar diseñadores (mediante un campo assigned_to que almacena un array de UUIDs) y subir archivos asociados.
+
+Interfaz moderna y accesible:
+Utilizando componentes accesibles de Headless UI para modales y formularios, asegurando una experiencia fluida.
+
+Optimización de consultas:
+Se evita la sobrecarga de peticiones utilizando estados locales y actualizaciones puntuales tras cada acción (CRUD).
+
+---
+
+## ✨ Funcionalidades principales
+
+- Registro e inicio de sesión con Supabase
+
+- Creación y edición de proyectos
+
+- Asignación de diseñadores
+
+- Subida de archivos a proyectos
+
+- Listado y gestión de proyectos según roles
